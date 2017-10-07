@@ -1,56 +1,100 @@
-
-//This os new and improved way
-(function(){
+(function() {
   var theImages = document.querySelectorAll('.image-holder'),
       theHeading = document.querySelector('.heading'),
       theSubhead = document.querySelector('.main-copy h2'),
       theSeasonText = document.querySelector('.main-copy p'),
-      appliedClass;
+      appliedClass = 'spring';
 
-      function changeElements(){
-        //make sure event handling is working
-        let objectIndex = dynamicContent[this.id];
-        let subImages = document.querySelector('.subImagesContainer');
+  function changeElements() {
+    // make sure event handling  is working
+    //debugger;
+    let objectIndex = dynamicContent[this.id];
+    // grab the object that corresponds to the ID of the element clicked on
+    let subImages = document.querySelector('.subImagesContainer');
+    // remove all subimages
+    while(subImages.firstChild) {
+      subImages.removeChild(subImages.firstChild);
+    }
 
-        //remove old subImages
-        while(subImages.firstChild){
-          subImages.removeChild(subImages.firstChild);
-        }
+    // add some images at the bottom of the page
+    objectIndex.images.forEach(function(image, index) {
+      // create a new image element
+      let newSubImg = document.createElement('img');
+      // add a css class to it
+      newSubImg.classList.add('thumb');
+      // add a source
+      newSubImg.src = "images/" + objectIndex.images[index];
+      // add it to the page
 
-        //add some images at the bottom of the page
-        objectIndex.images.forEach(function(image, index){
-          //creat a new image element
-          let newSubImg = document.createElement('img');
-          newSubImg.classList.add('thumb');
-          newSubImg.src = "images/" + objectIndex.images[index];
+      // add some data to the thumbnail
+      newSubImg.dataset.index = index;
 
-          subImages.appendChild(newSubImg);
-        });
+      // add some event handling
+      newSubImg.addEventListener('click', function() { popLightbox(index, objectIndex); }, false);
 
-        //remove the lastcss class applied
-        theSubhead.classList.remove(appliedClass);
-        theHeading.classList.remove(appliedClass);
+      subImages.appendChild(newSubImg);
 
-        //change the colour of the text element
-        theSubhead.classList.add(this.id);
-        theHeading.classList.add(this.id);
+    });
 
-        //change the content of the page
-        //firstChild.nodeValue is the same as innerHTML (kind of)
-        theSubhead.firstChild.nodeValue = objectIndex.headline;
-        theSeasonText.firstChild.nodeValue = objectIndex.text;
+    // remove the last css class applied
+    theSubhead.classList.remove(appliedClass);
+    theHeading.classList.remove(appliedClass);
 
-        appliedClass = this.id;
+    // change the color of the text elements
+    theSubhead.classList.add(this.id);
+    theHeading.classList.add(this.id);
 
-      }
+    // change the content on the page
+    // firstChild.nodeValue is the same as innerHTML (kind of)
+    theSubhead.firstChild.nodeValue = objectIndex.headline;
+    theSeasonText.firstChild.nodeValue = objectIndex.text;
 
-      theImages.forEach(function(element, index){
-        //loop through the images and add event handling ti each one
-        element.addEventListener('click', changeElements, false)
-      });
+    appliedClass = this.id;
+  }
 
-      theSubhead.firstChild.nodeValue = dynamicContent['spring'].headline;
-      theSeasonText.firstChild.nodeValue = dynamicContent['spring'].text;
-      theHeading.classlist.add('spring');
+  theImages.forEach(function(element, index) {
+    // loop through the images and add event handling to each one
+    element.addEventListener('click', changeElements, false);
+  });
 
+  // theSubhead.firstChild.nodeValue = dynamicContent['spring'].headline;
+  // theSeasonText.firstChild.nodeValue = dynamicContent['spring'].text;
+  // theHeading.classList.add('spring');
+
+  //document.querySelector('#spring').click();
+  function popLightbox(currentIndex, currentObject) {
+    debugger;
+    // quick scroll fix to make lightbox cover everything
+    window.scrollTo(0, 0);
+
+    // don't let the body scroll while lightbox is open
+    document.body.style.overflow = "hidden";
+
+    // grab the lightbox elements
+    let lightbox = document.querySelector('.lightbox');
+    let lightboxImg = lightbox.querySelector('img');
+    let lightboxDesc = lightbox.querySelector('p');
+    let lightboxClose = lightbox.querySelector('.close-lightbox');
+	console.log(currentIndex);
+    // put the data in the lightbox elements
+    lightboxImg.src = "images/" + currentObject.images[currentIndex];
+    lightboxDesc.innerHTML = currentObject.imageDescription[currentIndex];
+
+    lightbox.style.display = "block";
+
+    // wire up the close lightbox button
+    lightboxClose.addEventListener('click', closeLightbox, false);
+  }
+
+  function closeLightbox() {
+	  let lightbox = document.querySelector('.lightbox');
+    debugger;
+	lightbox.style.display = "none";
+	 document.body.style.overflow = "auto";
+    // reset and close the lightbox - empty the contents, reset the image src and
+    //the description text to nothing
+  }
+
+  // more programmy-type way to do the same thing
+  changeElements.call(document.querySelector('#' + appliedClass));
 })();
